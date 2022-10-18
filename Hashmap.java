@@ -18,8 +18,7 @@ public class Hashmap {
     }
 
     public void add(String key, String value){
-        int hash = hashFunc(key);
-        int index = hash % size;
+        int index = findGoodIndex(key);
         entiries[index] = new KeyValuePair(key, value);
         numberOfElements++;
         if(numberOfElements == size){
@@ -30,9 +29,9 @@ public class Hashmap {
     public void resize(int newSize){
         KeyValuePair[] newEntries = KeyValuePair[newSize];
         for(int i=0;i<size;i++){
+            //loop for copy elements to new array
             KeyValuePair entry = entiries[i];
-            int hash = hashFunc(entry.key);
-            int index = hash % newSize;
+            int index = findGoodIndex(entiries[i]);
             newEntries[index] = entry;
         }
         entiries = newEntries;
@@ -41,12 +40,29 @@ public class Hashmap {
     }
 
     public String get(String key){
-        int hash = hashFunc(key);
-        int index = hash % size;
+        int index = findGoodIndex(key);
+        if(index == null){
+            return null;
+        }
         KeyValuePair entry = entiries[index];
         if(entry == null){
             return null;
         }
         return entry.value;
+    }
+
+    public int findGoodIndex(String key){
+        // for fix collision problem
+        int hash = hashFunc(key);
+        int index = hash % size;
+        for(int i=0;i<size;i++){
+            int probingIndex = (index + i) % size;
+            KeyValuePair entry = entiries[probingIndex];
+            if(entry == null || entry.key.equals(key)){
+                return probingIndex;
+            }
+        return -1; 
+        }
+
     }
 }
